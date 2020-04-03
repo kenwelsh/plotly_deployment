@@ -125,25 +125,96 @@ function buildCharts(sample) {
     Plotly.newPlot("bubble", dataBubble, layout);
 
 
-    //Gauge Chart
+    //Gauge Chart without needle
     var metadataGauge = data.metadata;
     var resultArrayGauge = metadataGauge.filter(sampleObj => sampleObj.id == sample);
     var resultGauge = resultArrayGauge[0];
     var washFreq = resultGauge.wfreq;
 
-    var dataGauge = [
-      {
-        domain: { x: [0, 1], y: [0, 1] },
-        value: washFreq,
-        title: { text: "Belly Button Washing Frequency <br> Scrubs per Week" },
-        type: "indicator",
-        mode: "gauge+number",
-        gauge: { axis: { range: [null, 9] } }
-      }
-    ];
+    // var dataGauge = [
+    //   {
+    //     domain: { x: [0, 1], y: [0, 1] },
+    //     value: washFreq,
+    //     title: { text: "Belly Button Washing Frequency <br> Scrubs per Week" },
+    //     type: "indicator",
+    //     mode: "gauge+number",
+    //     gauge: { axis: { range: [null, 9] } }
+    //   }
+    // ];
     
-    var layout = { width: 600, height: 400 };
-    Plotly.newPlot('gauge', dataGauge, layout);
+    // var layout = { width: 600, height: 400 };
+    // Plotly.newPlot('gauge', dataGauge, layout);
+
+
+    // Gauge with needle
+    // Enter a speed between 0 and 180
+    var level = washFreq;
+
+    // Trig to calc meter point
+    var degrees = 180 - ((level/9)*180),
+        radius = .5;
+    var radians = degrees * Math.PI / 180;
+    var x = radius * Math.cos(radians);
+    var y = radius * Math.sin(radians);
+    var path1 = (degrees < 45 || degrees > 135) ? 'M -0.0 -0.025 L 0.0 0.025 L ' : 'M -0.025 -0.0 L 0.025 0.0 L ';
+    // Path: may have to change to create a better triangle
+    var mainPath = path1,
+        pathX = String(x),
+        space = ' ',
+        pathY = String(y),
+        pathEnd = ' Z';
+    var path = mainPath.concat(pathX,space,pathY,pathEnd);
+
+    var dataGauge2 = [{ type: 'scatter',
+      x: [0], y:[0],
+        marker: {size: 14, color:'850000'},
+        showlegend: false,
+        name: 'wash frequency',
+        text: level,
+        hoverinfo: 'text+name'},
+      { values: [1,1,1,1,1,1,1,1,1,9],
+      rotation: 90,
+      text: ['8-9', '7-8', '6-7', '5-6','4-5','3-4','2-3','1-2','0-1', ''],
+      textinfo: 'text',
+      textposition:'inside',
+      marker: {
+        colors:[
+          'rgba(28, 106, 11, 1)',
+          'rgba(51, 122, 33, 1)',
+          'rgba(75, 138, 56, 1)',
+          'rgba(99, 155, 78, 1)',
+          'rgba(123, 171, 101, 1)',
+          'rgba(146, 187, 124, 1)',
+          'rgba(170, 204, 146, 1)',
+          'rgba(194, 220, 169, 1)',
+          'rgba(218, 237, 192, 1)',
+          'rgba(0, 0, 0, 0)']
+      },
+      hoverinfo: 'label',
+      hole: .5,
+      type: 'pie',
+      showlegend: false
+    }];
+
+    var layoutGauge2 = {
+      shapes:[{
+          type: 'path',
+          path: path,
+          fillcolor: '850000',
+          line: {
+            color: '850000'
+          }
+        }],
+      height: 500,
+      width: 500,
+      title: { text: "Belly Button Washing Frequency <br> Scrubs per Week" },
+      xaxis: {zeroline:false, showticklabels:false,
+                showgrid: false, range: [-1, 1]},
+      yaxis: {zeroline:false, showticklabels:false,
+                showgrid: false, range: [-1, 1]}
+    };
+
+    Plotly.newPlot('gauge', dataGauge2, layoutGauge2);
 
   });
 };

@@ -1,0 +1,4 @@
+.chart {
+    max-height: calc(250px + 25px) !important;
+    overflow:hidden;
+}
